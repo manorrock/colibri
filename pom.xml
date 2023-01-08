@@ -131,6 +131,7 @@
     <modules>
         <module>api</module>
         <module>impl</module>
+        <module>jms</module>
     </modules>
     <profiles>
         <profile>
