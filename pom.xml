@@ -130,6 +130,7 @@
     </distributionManagement>
     <modules>
         <module>api</module>
+        <module>azure-eventbus</module>
         <module>azure-eventhubs</module>
         <module>impl</module>
         <module>jms</module>
