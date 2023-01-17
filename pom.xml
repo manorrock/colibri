@@ -134,6 +134,7 @@
         <module>azure-eventhubs</module>
         <module>impl</module>
         <module>jms</module>
+        <module>sse</module>
     </modules>
     <profiles>
         <profile>
