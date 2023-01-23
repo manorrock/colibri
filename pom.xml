@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.manorrock.colibri</groupId>
     <artifactId>project</artifactId>
-    <version>22.3.0-SNAPSHOT</version>
+    <version>23.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Manorrock Colibri - Project</name>
     <description>
@@ -134,6 +134,7 @@
         <module>azure-eventhubs</module>
         <module>impl</module>
         <module>jms</module>
+        <module>kafka</module>
         <module>sse</module>
     </modules>
     <profiles>
