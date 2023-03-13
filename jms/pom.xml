@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.manorrock.colibri</groupId>
         <artifactId>project</artifactId>
-        <version>23.2.0-SNAPSHOT</version>
+        <version>23.3.0</version>
     </parent>
     <artifactId>colibri-jms</artifactId>
     <packaging>jar</packaging>
