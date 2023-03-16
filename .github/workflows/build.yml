@@ -2,9 +2,10 @@ name: build
 on: 
   push:
     branches:
-      - 'current'
-  pull_requests:
-      - 'current'
+      - '*'
+  pull_request:
+    branches:
+      - '*'  
   workflow_dispatch:
 jobs:
   linux:
@@ -15,8 +16,5 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 17
-        server-id: ossrh
-        server-username: MAVEN_USERNAME
-        server-password: MAVEN_PASSWORD
     - name: Build project
       run: mvn -B -ntp install
