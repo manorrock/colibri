@@ -30,17 +30,17 @@
 package com.manorrock.colibri.api;
 
 /**
- * An event publisher.
+ * The event consumer.
  * 
  * @author Manfred Riem (mriem@manorrock.com)
- * @param <T> the event type.
+ * @param <T> the type.
  */
-public interface EventPublisher<T> {
+public interface EventConsumer<T> {
     
     /**
-     * Publish a event.
+     * Consume an event.
      * 
      * @param event the event.
      */
-    void publish(T event);
+    void consume(T event);
 }
