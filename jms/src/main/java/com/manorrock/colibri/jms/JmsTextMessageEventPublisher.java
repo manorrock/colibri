@@ -27,41 +27,52 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.api;
+package com.manorrock.colibri.jms;
+
+import com.manorrock.colibri.api.EventPublisher;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSProducer;
+import jakarta.jms.Queue;
 
 /**
- * An event publisher.
+ * The JMS TextMessage implementation of an EventPublisher.
  * 
  * @author Manfred Riem (mriem@manorrock.com)
- * @param <T> the event type.
- * @param <UT> the underlying event type.
+ * @param <T> the type.
  */
-public interface EventPublisher<T, UT> {
+public class JmsTextMessageEventPublisher<T> implements EventPublisher<T, String> {
+
+    /**
+     * Stores the JMS producer.
+     */
+    private final JMSProducer producer;
     
     /**
-     * Publish a event.
-     * 
-     * @param event the event.
+     * Stores the JMS queue.
      */
-    void publish(T event);
+    private final Queue queue;
     
     /**
-     * To underlying event.
+     * Constructor.
      * 
-     * @param event the event.
-     * @return the underlying event.
+     * @param connectionFactory the connection factory.
+     * @param destinationName the destination name.
      */
-    default UT toUnderlyingEvent(T event) {
-        return (UT) event;
+    public JmsTextMessageEventPublisher(
+            ConnectionFactory connectionFactory, String destinationName) {
+        JMSContext context = connectionFactory.createContext();
+        queue = context.createQueue(destinationName);
+        producer = context.createProducer();
     }
     
-    /**
-     * To event.
-     * 
-     * @param underlyingEvent the underlying event.
-     * @return the event.
-     */
-    default T toEvent(UT underlyingEvent) {
-        return (T) underlyingEvent;
+    @Override
+    public void publish(T event) {
+        producer.send(queue, (String) toUnderlyingEvent(event));
+    }
+
+    @Override
+    public String toUnderlyingEvent(T event) {
+        return event.toString();
     }
 }

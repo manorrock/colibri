@@ -27,41 +27,14 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.api;
 
 /**
- * An event publisher.
+ * The module-info for the Colibri API.
  * 
  * @author Manfred Riem (mriem@manorrock.com)
- * @param <T> the event type.
- * @param <UT> the underlying event type.
  */
-public interface EventPublisher<T, UT> {
+module com.manorrock.colibri.api {
     
-    /**
-     * Publish a event.
-     * 
-     * @param event the event.
-     */
-    void publish(T event);
-    
-    /**
-     * To underlying event.
-     * 
-     * @param event the event.
-     * @return the underlying event.
-     */
-    default UT toUnderlyingEvent(T event) {
-        return (UT) event;
-    }
-    
-    /**
-     * To event.
-     * 
-     * @param underlyingEvent the underlying event.
-     * @return the event.
-     */
-    default T toEvent(UT underlyingEvent) {
-        return (T) underlyingEvent;
-    }
+    exports com.manorrock.colibri.api;
+    opens com.manorrock.colibri.api;
 }
