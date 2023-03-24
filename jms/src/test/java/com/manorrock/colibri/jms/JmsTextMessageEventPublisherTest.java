@@ -27,16 +27,26 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+package com.manorrock.colibri.jms;
+
+import com.sun.messaging.ConnectionFactory;
+import org.junit.jupiter.api.Test;
 
 /**
- * The module-info for the JMS implementation.
+ * The JUnit tests for the JmsTextMessageEventPublisher class.
  * 
  * @author Manfred Riem (mriem@manorrock.com)
  */
-module com.manorrock.colibri.jms {
+public class JmsTextMessageEventPublisherTest {
     
-    exports com.manorrock.colibri.jms;
-    opens com.manorrock.colibri.jms;
-    requires com.manorrock.colibri.api;
-    requires jakarta.messaging;
+    /**
+     * Test publish method.
+     */
+    @Test
+    public void testPublish() {
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        JmsTextMessageEventPublisher<String> publisher =
+                new JmsTextMessageEventPublisher(connectionFactory, "colibri");
+        publisher.publish("Hello World!");
+    }
 }
