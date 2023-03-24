@@ -29,28 +29,56 @@
  */
 package com.manorrock.colibri.jms;
 
-import com.sun.messaging.ConnectionFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.junit.jupiter.api.Test;
+import com.manorrock.colibri.api.EventReceiver;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.JMSConsumer;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSException;
+import jakarta.jms.Queue;
+import jakarta.jms.TextMessage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * The JUnit tests for the JmsTextMessageEventPublisher class.
- * 
+ * The JMS TextMessage implementation of an EventReceiver.
+ *
  * @author Manfred Riem (mriem@manorrock.com)
+ * @param <T> the type.
  */
-public class JmsTextMessageEventPublisherTest {
-    
+public class JmsTextMessageEventReceiver<T> implements EventReceiver<T, String> {
+
     /**
-     * Test publish method.
+     * Stores the JMS producer.
      */
-    @Test
-    public void testPublish() {
-        ConnectionFactory connectionFactory = new ConnectionFactory();
-        JmsTextMessageEventPublisher<String> publisher =
-                new JmsTextMessageEventPublisher(connectionFactory, "colibri");
-        publisher.publish("Hello World!");
-        JmsTextMessageEventReceiver<String> receiver =
-                new JmsTextMessageEventReceiver(connectionFactory, "colibri");
-        assertEquals("Hello World!", receiver.receive());
+    private final JMSConsumer consumer;
+
+    /**
+     * Stores the JMS queue.
+     */
+    private final Queue queue;
+
+    /**
+     * Constructor.
+     *
+     * @param connectionFactory the connection factory.
+     * @param destinationName the destination name.
+     */
+    public JmsTextMessageEventReceiver(
+            ConnectionFactory connectionFactory,
+            String destinationName) {
+        JMSContext context = connectionFactory.createContext();
+        queue = context.createQueue(destinationName);
+        consumer = context.createConsumer(queue);
+    }
+
+    @Override
+    public T receive() {
+        T result = null;
+        try {
+            TextMessage message = (TextMessage) consumer.receive();
+            result = toEvent(message.getText());
+        } catch (JMSException je) {
+        }
+        return result;
     }
 }
