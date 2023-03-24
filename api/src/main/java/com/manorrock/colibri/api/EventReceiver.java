@@ -33,14 +33,35 @@ package com.manorrock.colibri.api;
  * An event receiver.
  * 
  * @author Manfred Riem (mriem@manorrock.com)
- * @param <T> the type.
+ * @param <T> the event type.
+ * @param <UT> the underlying event type.
  */
-public interface EventReceiver<T> {
+public interface EventReceiver<T, UT> {
     
     /**
      * Receive an event.
      * 
-     * @param event the event.
+     * @return the event.
      */
-    void receive(T event);
+    T receive();
+
+    /**
+     * To underlying event.
+     * 
+     * @param event the event.
+     * @return the underlying event.
+     */
+    default UT toUnderlyingEvent(T event) {
+        return (UT) event;
+    }
+    
+    /**
+     * To event.
+     * 
+     * @param underlyingEvent the underlying event.
+     * @return the event.
+     */
+    default T toEvent(UT underlyingEvent) {
+        return (T) underlyingEvent;
+    }
 }
