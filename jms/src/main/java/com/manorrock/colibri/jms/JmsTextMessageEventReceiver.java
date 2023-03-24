@@ -36,6 +36,8 @@ import jakarta.jms.JMSContext;
 import jakarta.jms.JMSException;
 import jakarta.jms.Queue;
 import jakarta.jms.TextMessage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The JMS TextMessage implementation of an EventReceiver.

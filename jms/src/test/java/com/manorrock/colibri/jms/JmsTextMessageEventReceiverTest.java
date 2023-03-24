@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Manfred Riem (mriem@manorrock.com)
  */
-public class JmsTextMessageEventPublisherTest {
+public class JmsTextMessageEventReceiverTest {
     
     /**
      * Test publish method.
