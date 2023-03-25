@@ -8,7 +8,18 @@ on:
       - '*'  
   workflow_dispatch:
 jobs:
-  linux:
+  build:
+    runs-on: ubuntu-latest
+    fail-fast: true
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: 17
+    - name: Build project
+      run: mvn -B -ntp install
+  jms:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -18,3 +29,11 @@ jobs:
         java-version: 17
     - name: Build project
       run: mvn -B -ntp install
+    - name: Run tests
+      run: |
+        curl -O -L https://download.eclipse.org/ee4j/glassfish/glassfish-7.0.0.zip
+        unzip glassfish-7.0.0.zip
+        cd glassfish7/bin
+        asadmin start-domain
+        cd ../../jms
+        mvn -P glassfish verify
