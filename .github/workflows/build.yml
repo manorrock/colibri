@@ -33,6 +33,6 @@ jobs:
         curl -O -L https://download.eclipse.org/ee4j/glassfish/glassfish-7.0.0.zip
         unzip glassfish-7.0.0.zip
         cd glassfish7/bin
-        asadmin start-domain
+        ./asadmin start-domain
         cd ../../jms
         mvn -P glassfish verify
