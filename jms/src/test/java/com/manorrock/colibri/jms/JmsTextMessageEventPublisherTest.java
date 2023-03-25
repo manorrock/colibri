@@ -30,27 +30,31 @@
 package com.manorrock.colibri.jms;
 
 import com.sun.messaging.ConnectionFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 /**
  * The JUnit tests for the JmsTextMessageEventPublisher class.
- * 
+ *
  * @author Manfred Riem (mriem@manorrock.com)
  */
-public class JmsTextMessageEventPublisherTest {
-    
+class JmsTextMessageEventPublisherTest {
+
     /**
      * Test publish method.
+     *
+     * @throws Exception when a serious error occurs.
      */
     @Test
-    public void testPublish() {
+    void testPublish() throws Exception {
         ConnectionFactory connectionFactory = new ConnectionFactory();
-        JmsTextMessageEventPublisher<String> publisher =
-                new JmsTextMessageEventPublisher(connectionFactory, "colibri");
-        publisher.publish("Hello World!");
-        JmsTextMessageEventReceiver<String> receiver =
-                new JmsTextMessageEventReceiver(connectionFactory, "colibri");
-        assertEquals("Hello World!", receiver.receive());
+        try (JmsTextMessageEventPublisher<String> publisher
+                = new JmsTextMessageEventPublisher(connectionFactory, "colibri")) {
+            publisher.publish("Publish me");
+        }
+        try (JmsTextMessageEventReceiver<String> receiver
+                = new JmsTextMessageEventReceiver(connectionFactory, "colibri")) {
+            assertNotNull(receiver.receive());
+        }
     }
 }

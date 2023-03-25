@@ -33,11 +33,10 @@ import com.manorrock.colibri.api.EventReceiver;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.JMSConsumer;
 import jakarta.jms.JMSContext;
+import static jakarta.jms.JMSContext.CLIENT_ACKNOWLEDGE;
 import jakarta.jms.JMSException;
 import jakarta.jms.Queue;
 import jakarta.jms.TextMessage;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The JMS TextMessage implementation of an EventReceiver.
@@ -47,6 +46,11 @@ import java.util.logging.Logger;
  */
 public class JmsTextMessageEventReceiver<T> implements EventReceiver<T, String> {
 
+    /**
+     * Stores the JMS context.
+     */
+    private final JMSContext context;
+    
     /**
      * Stores the JMS producer.
      */
@@ -66,9 +70,15 @@ public class JmsTextMessageEventReceiver<T> implements EventReceiver<T, String> 
     public JmsTextMessageEventReceiver(
             ConnectionFactory connectionFactory,
             String destinationName) {
-        JMSContext context = connectionFactory.createContext();
+        context = connectionFactory.createContext();
         queue = context.createQueue(destinationName);
         consumer = context.createConsumer(queue);
+    }
+    
+    @Override
+    public void close() {
+        consumer.close();
+        context.close();
     }
 
     @Override
@@ -78,6 +88,7 @@ public class JmsTextMessageEventReceiver<T> implements EventReceiver<T, String> 
             TextMessage message = (TextMessage) consumer.receive();
             result = toEvent(message.getText());
         } catch (JMSException je) {
+            je.printStackTrace();
         }
         return result;
     }

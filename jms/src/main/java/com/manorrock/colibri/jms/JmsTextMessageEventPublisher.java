@@ -31,6 +31,7 @@ package com.manorrock.colibri.jms;
 
 import com.manorrock.colibri.api.EventPublisher;
 import jakarta.jms.ConnectionFactory;
+import static jakarta.jms.DeliveryMode.NON_PERSISTENT;
 import jakarta.jms.JMSContext;
 import jakarta.jms.JMSProducer;
 import jakarta.jms.Queue;
@@ -43,6 +44,11 @@ import jakarta.jms.Queue;
  */
 public class JmsTextMessageEventPublisher<T> implements EventPublisher<T, String> {
 
+    /**
+     * Stores the context.
+     */
+    private final JMSContext context;
+    
     /**
      * Stores the JMS producer.
      */
@@ -61,11 +67,17 @@ public class JmsTextMessageEventPublisher<T> implements EventPublisher<T, String
      */
     public JmsTextMessageEventPublisher(
             ConnectionFactory connectionFactory, String destinationName) {
-        JMSContext context = connectionFactory.createContext();
+        context = connectionFactory.createContext();
         queue = context.createQueue(destinationName);
         producer = context.createProducer();
+        producer.setDeliveryMode(NON_PERSISTENT);
     }
     
+    @Override
+    public void close() throws Exception {
+        context.close();
+    }
+
     @Override
     public void publish(T event) {
         producer.send(queue, (String) toUnderlyingEvent(event));

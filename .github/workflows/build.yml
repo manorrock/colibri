@@ -34,6 +34,6 @@ jobs:
         unzip glassfish-7.0.0.zip
         cd glassfish7/bin
         ./asadmin start-domain
-        sleep 60
+        ./asadmin create-jms-resource --restype jakarta.jms.Queue --property Name=colibri jms/colibri
         cd ../../jms
         mvn -P glassfish verify
