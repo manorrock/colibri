@@ -34,5 +34,6 @@ jobs:
         unzip glassfish-7.0.0.zip
         cd glassfish7/bin
         ./asadmin start-domain
+        sleep 60
         cd ../../jms
         mvn -P glassfish verify
