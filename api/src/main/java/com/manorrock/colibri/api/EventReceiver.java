@@ -36,7 +36,7 @@ package com.manorrock.colibri.api;
  * @param <T> the event type.
  * @param <UT> the underlying event type.
  */
-public interface EventReceiver<T, UT> {
+public interface EventReceiver<T, UT> extends AutoCloseable {
     
     /**
      * Receive an event.

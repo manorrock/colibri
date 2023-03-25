@@ -36,7 +36,7 @@ package com.manorrock.colibri.api;
  * @param <T> the event type.
  * @param <UT> the underlying event type.
  */
-public interface EventPublisher<T, UT> {
+public interface EventPublisher<T, UT> extends AutoCloseable {
     
     /**
      * Publish a event.
