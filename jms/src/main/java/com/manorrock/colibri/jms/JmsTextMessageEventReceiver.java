@@ -33,10 +33,11 @@ import com.manorrock.colibri.api.EventReceiver;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.JMSConsumer;
 import jakarta.jms.JMSContext;
-import static jakarta.jms.JMSContext.CLIENT_ACKNOWLEDGE;
 import jakarta.jms.JMSException;
 import jakarta.jms.Queue;
 import jakarta.jms.TextMessage;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The JMS TextMessage implementation of an EventReceiver.
@@ -79,6 +80,15 @@ public class JmsTextMessageEventReceiver<T> implements EventReceiver<T, String> 
     public void close() {
         consumer.close();
         context.close();
+    }
+
+    @Override
+    public Map<String, Object> getDelegate() {
+        Map<String, Object> delegate = new HashMap<>();
+        delegate.put("jmsContext", context);
+        delegate.put("jmsConsumer", consumer);
+        delegate.put("queue", queue);
+        return delegate;
     }
 
     @Override

@@ -30,12 +30,11 @@
 package com.manorrock.colibri.kafka;
 
 import com.manorrock.colibri.api.EventPublisher;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 
 /**
  * The Kafka implementation of an EventPublisher.
@@ -69,6 +68,14 @@ public class KafkaEventPublisher<T> implements EventPublisher<T, String> {
     @Override
     public void close() throws Exception {
         producer.close();
+    }
+
+    @Override
+    public Map<String, Object> getDelegate() {
+        Map<String, Object> delegate = new HashMap<>();
+        delegate.put("kafkaProducer", producer);
+        delegate.put("topic", topic);
+        return delegate;
     }
 
     @Override
