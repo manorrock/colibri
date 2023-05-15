@@ -43,13 +43,13 @@ import org.testcontainers.utility.DockerImageName;
  * @author Manfred Riem (mriem@manorrock.com)
  */
 @Testcontainers
-class KafkaEventPublisherTest {
+class KafkaEventReceiverTest {
 
     @Container
     KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"));
 
     @Test
-    void testPublish() throws Exception {
+    void testReceive() throws Exception {
         Properties properties = new Properties();
         properties.put("bootstrap.servers", kafka.getBootstrapServers());
         properties.put("group.id", "1");
