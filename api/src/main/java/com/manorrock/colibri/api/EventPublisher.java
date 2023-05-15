@@ -29,6 +29,8 @@
  */
 package com.manorrock.colibri.api;
 
+import java.util.Map;
+
 /**
  * An event publisher.
  * 
@@ -37,6 +39,13 @@ package com.manorrock.colibri.api;
  * @param <UT> the underlying event type.
  */
 public interface EventPublisher<T, UT> extends AutoCloseable {
+    
+    /**
+     * Get the delegate map.
+     * 
+     * @return the delegate map.
+     */
+    Map<String, Object> getDelegate();
     
     /**
      * Publish a event.

@@ -29,6 +29,8 @@
  */
 package com.manorrock.colibri.api;
 
+import java.util.Map;
+
 /**
  * An event receiver.
  * 
@@ -37,6 +39,13 @@ package com.manorrock.colibri.api;
  * @param <UT> the underlying event type.
  */
 public interface EventReceiver<T, UT> extends AutoCloseable {
+    
+    /**
+     * Get the delegate map.
+     * 
+     * @return the delegate map.
+     */
+    Map<String, Object> getDelegate();
     
     /**
      * Receive an event.

@@ -32,12 +32,13 @@ package com.manorrock.colibri.kafka;
 import com.manorrock.colibri.api.EventReceiver;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
 
 /**
  * The Kafka implementation of an EventReceiver.
@@ -82,6 +83,16 @@ public class KafkaEventReceiver<T> implements EventReceiver<T, String> {
     @Override
     public void close() {
         consumer.close();
+    }
+
+    @Override
+    public Map<String, Object> getDelegate() {
+        Map<String, Object> delegate = new HashMap<>();
+        delegate.put("kafkaConsumer", consumer);
+        delegate.put("pendingRecords", pendingRecords);
+        delegate.put("pendingIterator", pendingIterator);
+        delegate.put("topic", topic);
+        return delegate;
     }
 
     @Override

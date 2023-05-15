@@ -35,6 +35,8 @@ import static jakarta.jms.DeliveryMode.NON_PERSISTENT;
 import jakarta.jms.JMSContext;
 import jakarta.jms.JMSProducer;
 import jakarta.jms.Queue;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The JMS TextMessage implementation of an EventPublisher.
@@ -76,6 +78,15 @@ public class JmsTextMessageEventPublisher<T> implements EventPublisher<T, String
     @Override
     public void close() throws Exception {
         context.close();
+    }
+
+    @Override
+    public Map<String, Object> getDelegate() {
+        Map<String, Object> delegate = new HashMap<>();
+        delegate.put("jmsContenxt", context);
+        delegate.put("jmsProducer", producer);
+        delegate.put("queue", queue);
+        return delegate;
     }
 
     @Override
