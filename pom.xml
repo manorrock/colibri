@@ -20,6 +20,8 @@
         </license>
     </licenses>
     <properties>
+        <!-- dependencies -->
+        <azure-messaging-servicebus.version>7.14.2</azure-messaging-servicebus.version>
         <jakarta.jms-api.version>3.1.0</jakarta.jms-api.version>
         <junit.version>5.9.2</junit.version>
         <kafka-clients.version>3.4.0</kafka-clients.version>
@@ -123,6 +125,11 @@
     </build>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.azure</groupId>
+                <artifactId>azure-messaging-servicebus</artifactId>
+                <version>${azure-messaging-servicebus.version}</version>
+            </dependency>
             <dependency>
                 <groupId>jakarta.jms</groupId>
                 <artifactId>jakarta.jms-api</artifactId>

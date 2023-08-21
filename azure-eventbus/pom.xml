@@ -10,4 +10,17 @@
     <artifactId>colibri-azure-eventbus</artifactId>
     <packaging>jar</packaging>
     <name>Manorrock Colibri - Azure EventBus</name>
+    <dependencies>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-messaging-servicebus</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.manorrock.colibri</groupId>
+            <artifactId>colibri-api</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>
