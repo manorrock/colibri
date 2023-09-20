@@ -10,4 +10,18 @@
     <artifactId>colibri-azure-eventhubs</artifactId>
     <packaging>jar</packaging>
     <name>Manorrock Colibri - Azure EventHubs</name>
+    <dependencies>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-messaging-eventhubs</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.manorrock.colibri</groupId>
+            <artifactId>colibri-api</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+    
 </project>
