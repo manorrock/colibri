@@ -27,15 +27,13 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.azureeventhub;
+package com.manorrock.colibri.azureservicebus;
 
-import com.azure.core.util.IterableStream;
-import com.azure.messaging.eventhubs.EventData;
-import com.azure.messaging.eventhubs.EventHubClientBuilder;
-import com.azure.messaging.eventhubs.EventHubConsumerClient;
-import com.azure.messaging.eventhubs.models.EventPosition;
-import com.azure.messaging.eventhubs.models.PartitionEvent;
+import com.azure.messaging.servicebus.ServiceBusClientBuilder;
+import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
+import com.azure.messaging.servicebus.ServiceBusReceiverClient;
 import com.manorrock.colibri.api.EventReceiver;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,12 +43,12 @@ import java.util.Map;
  * @author Manfred Riem (mriem@manorrock.com)
  * @param <T> the type.
  */
-public class AzureEventHubEventReceiver<T> implements EventReceiver<T, EventData> {
+public class AzureServiceBusEventReceiver<T> implements EventReceiver<T, byte[]> {
 
     /**
      * Stores the client.
      */
-    private EventHubConsumerClient client;
+    private ServiceBusReceiverClient client;
 
     /**
      * Stores the connection string.
@@ -58,30 +56,22 @@ public class AzureEventHubEventReceiver<T> implements EventReceiver<T, EventData
     private String connectionString;
 
     /**
-     * Stores the event hub name.
+     * Stores the queue name.
      */
-    private String eventHubName;
+    private String queueName;
 
-    /**
-     * Stores the partition id.
-     */
-    private String partitionId;
-    
     /**
      * Constructor.
      *
      * @param connectionString the connection string.
-     * @param eventHubName the queue name.
+     * @param queueName the queue name.
      */
-    public AzureEventHubEventReceiver(String connectionString, String eventHubName) {
-        this.connectionString = connectionString;
-        this.eventHubName = eventHubName;
-        client = new EventHubClientBuilder()
-                .connectionString(connectionString, eventHubName)
-                .consumerGroup("$DEFAULT")
-                .buildConsumerClient();
-        
-        partitionId = client.getPartitionIds().iterator().next();
+    public AzureServiceBusEventReceiver(String connectionString, String queueName) {
+        client = new ServiceBusClientBuilder()
+                .connectionString(connectionString)
+                .receiver()
+                .queueName(queueName)
+                .buildClient();
     }
 
     @Override
@@ -94,18 +84,16 @@ public class AzureEventHubEventReceiver<T> implements EventReceiver<T, EventData
         Map<String, Object> delegate = new HashMap<>();
         delegate.put("client", client);
         delegate.put("connectionString", connectionString);
-        delegate.put("queueName", eventHubName);
+        delegate.put("queueName", queueName);
         return delegate;
     }
 
     @Override
     public T receive() {
-        T result = null;
-        IterableStream<PartitionEvent> events = 
-                client.receiveFromPartition(partitionId, 1, EventPosition.earliest());
-        if (events.iterator().hasNext()) {
-            result = toEvent(events.iterator().next().getData());
-        }
+        T result;
+        ArrayList<ServiceBusReceivedMessage> messages = new ArrayList<>();
+        client.receiveMessages(1).forEach(m -> messages.add(m));
+        result = toEvent(messages.get(0).getBody().toBytes());
         return result;
     }
 }

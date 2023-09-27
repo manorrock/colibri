@@ -27,54 +27,65 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.azureeventbus;
+package com.manorrock.colibri.azureeventhubs;
 
-import com.azure.messaging.servicebus.ServiceBusClientBuilder;
-import com.azure.messaging.servicebus.ServiceBusMessage;
-import com.azure.messaging.servicebus.ServiceBusSenderClient;
-import com.manorrock.colibri.api.EventPublisher;
+import com.azure.core.util.IterableStream;
+import com.azure.messaging.eventhubs.EventData;
+import com.azure.messaging.eventhubs.EventHubClientBuilder;
+import com.azure.messaging.eventhubs.EventHubConsumerClient;
+import com.azure.messaging.eventhubs.models.EventPosition;
+import com.azure.messaging.eventhubs.models.PartitionEvent;
+import com.manorrock.colibri.api.EventReceiver;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The Azure Event Bus implementation of an EventPublisher.
+ * The JMS TextMessage implementation of an EventReceiver.
  *
  * @author Manfred Riem (mriem@manorrock.com)
  * @param <T> the type.
  */
-public class AzureEventBusEventPublisher<T> implements EventPublisher<T, byte[]> {
+public class AzureEventHubEventReceiver<T> implements EventReceiver<T, EventData> {
 
     /**
      * Stores the client.
      */
-    private ServiceBusSenderClient client;
-    
+    private EventHubConsumerClient client;
+
     /**
      * Stores the connection string.
      */
     private String connectionString;
-    
+
     /**
-     * Stores the queue name.
+     * Stores the event hub name.
      */
-    private String queueName;
+    private String eventHubName;
+
+    /**
+     * Stores the partition id.
+     */
+    private String partitionId;
     
     /**
      * Constructor.
-     * 
+     *
      * @param connectionString the connection string.
-     * @param queueName the queue name.
+     * @param eventHubName the queue name.
      */
-    public AzureEventBusEventPublisher(String connectionString, String queueName) {
-        client = new ServiceBusClientBuilder()
-                .connectionString(connectionString)
-                .sender()
-                .queueName(queueName)
-                .buildClient();
+    public AzureEventHubEventReceiver(String connectionString, String eventHubName) {
+        this.connectionString = connectionString;
+        this.eventHubName = eventHubName;
+        client = new EventHubClientBuilder()
+                .connectionString(connectionString, eventHubName)
+                .consumerGroup("$DEFAULT")
+                .buildConsumerClient();
+        
+        partitionId = client.getPartitionIds().iterator().next();
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         client.close();
     }
 
@@ -83,13 +94,18 @@ public class AzureEventBusEventPublisher<T> implements EventPublisher<T, byte[]>
         Map<String, Object> delegate = new HashMap<>();
         delegate.put("client", client);
         delegate.put("connectionString", connectionString);
-        delegate.put("queueName", queueName);
+        delegate.put("queueName", eventHubName);
         return delegate;
     }
 
     @Override
-    public void publish(T event) {
-        ServiceBusMessage message = new ServiceBusMessage(toUnderlyingEvent(event));
-        client.sendMessage(message);
+    public T receive() {
+        T result = null;
+        IterableStream<PartitionEvent> events = 
+                client.receiveFromPartition(partitionId, 1, EventPosition.earliest());
+        if (events.iterator().hasNext()) {
+            result = toEvent(events.iterator().next().getData());
+        }
+        return result;
     }
 }
