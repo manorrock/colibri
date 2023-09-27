@@ -27,55 +27,55 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.azureeventbus;
+package com.manorrock.colibri.azureeventhubs;
 
-import com.azure.messaging.servicebus.ServiceBusClientBuilder;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
-import com.azure.messaging.servicebus.ServiceBusReceiverClient;
-import com.manorrock.colibri.api.EventReceiver;
-import java.util.ArrayList;
+import com.azure.messaging.eventhubs.EventData;
+import com.azure.messaging.eventhubs.EventDataBatch;
+import com.azure.messaging.eventhubs.EventHubClientBuilder;
+import com.azure.messaging.eventhubs.EventHubProducerClient;
+import com.manorrock.colibri.api.EventPublisher;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The JMS TextMessage implementation of an EventReceiver.
+ * The Azure Event Bus implementation of an EventPublisher.
  *
  * @author Manfred Riem (mriem@manorrock.com)
  * @param <T> the type.
  */
-public class AzureEventBusEventReceiver<T> implements EventReceiver<T, byte[]> {
+public class AzureEventHubEventPublisher<T> implements EventPublisher<T, EventData> {
 
     /**
      * Stores the client.
      */
-    private ServiceBusReceiverClient client;
-
+    private EventHubProducerClient client;
+    
     /**
      * Stores the connection string.
      */
     private String connectionString;
-
+    
     /**
-     * Stores the queue name.
+     * Stores the event hub name.
      */
-    private String queueName;
-
+    private String eventHubName;
+    
     /**
      * Constructor.
-     *
+     * 
      * @param connectionString the connection string.
-     * @param queueName the queue name.
+     * @param eventHubName the event hub name.
      */
-    public AzureEventBusEventReceiver(String connectionString, String queueName) {
-        client = new ServiceBusClientBuilder()
-                .connectionString(connectionString)
-                .receiver()
-                .queueName(queueName)
-                .buildClient();
+    public AzureEventHubEventPublisher(String connectionString, String eventHubName) {
+        this.connectionString = connectionString;
+        this.eventHubName = eventHubName;
+        client = new EventHubClientBuilder()
+                .connectionString(connectionString, eventHubName)
+                .buildProducerClient();
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
         client.close();
     }
 
@@ -84,16 +84,14 @@ public class AzureEventBusEventReceiver<T> implements EventReceiver<T, byte[]> {
         Map<String, Object> delegate = new HashMap<>();
         delegate.put("client", client);
         delegate.put("connectionString", connectionString);
-        delegate.put("queueName", queueName);
+        delegate.put("eventHubName", eventHubName);
         return delegate;
     }
 
     @Override
-    public T receive() {
-        T result;
-        ArrayList<ServiceBusReceivedMessage> messages = new ArrayList<>();
-        client.receiveMessages(1).forEach(m -> messages.add(m));
-        result = toEvent(messages.get(0).getBody().toBytes());
-        return result;
+    public void publish(T event) {
+        EventDataBatch batch = client.createBatch();
+        batch.tryAdd(toUnderlyingEvent(event));
+        client.send(batch);
     }
 }
