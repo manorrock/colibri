@@ -177,7 +177,6 @@
         <module>api</module>
         <module>azure-eventbus</module>
         <module>azure-eventhubs</module>
-        <module>impl</module>
         <module>jms</module>
         <module>kafka</module>
         <module>sse</module>
