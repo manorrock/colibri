@@ -27,69 +27,34 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.kafka;
+package com.manorrock.colibri.jms;
 
-import com.manorrock.colibri.api.EventPublisher;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import com.sun.messaging.ConnectionFactory;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
 
 /**
- * The Kafka implementation of an EventPublisher.
+ * The JUnit tests for the JmsTextMessageEventSender class.
  *
  * @author Manfred Riem (mriem@manorrock.com)
- * @param <T> the type.
  */
-public class KafkaEventPublisher<T> implements EventPublisher<T, String> {
+class JmsTextMessageEventSenderTest {
 
     /**
-     * Stores the producer.
+     * Test send method.
+     *
+     * @throws Exception when a serious error occurs.
      */
-    private KafkaProducer<String, String> producer;
-    
-    /**
-     * Stores the topic.
-     */
-    private String topic;
-
-    /**
-     * Constructor.
-     * 
-     * @param properties the configuration properties.
-     * @param topic the topic name.
-     */
-    public KafkaEventPublisher(Properties properties, String topic) {
-        producer = new KafkaProducer<>(properties);
-        this.topic = topic;
-    }
-
-    @Override
-    public void close() throws Exception {
-        producer.close();
-    }
-
-    @Override
-    public Map<String, Object> getDelegate() {
-        Map<String, Object> delegate = new HashMap<>();
-        delegate.put("kafkaProducer", producer);
-        delegate.put("topic", topic);
-        return delegate;
-    }
-
-    @Override
-    public void publish(T event) {
-        ProducerRecord record = new ProducerRecord(topic, String.valueOf(System.nanoTime()), toUnderlyingEvent(event));
-        try {
-            producer.send(record).get();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    @Test
+    void testSend() throws Exception {
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        try (JmsTextMessageEventSender<String> sender
+                = new JmsTextMessageEventSender(connectionFactory, "colibri")) {
+            sender.send("Send me");
         }
-    }
-
-    @Override
-    public String toUnderlyingEvent(T event) {
-        return event.toString();
+        try (JmsTextMessageEventReceiver<String> receiver
+                = new JmsTextMessageEventReceiver(connectionFactory, "colibri")) {
+            assertNotNull(receiver.receive());
+        }
     }
 }

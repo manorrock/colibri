@@ -38,27 +38,27 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * The JUnit tests for the KafkaEventPublisher class.
+ * The JUnit tests for the KafkaEventSender class.
  *
  * @author Manfred Riem (mriem@manorrock.com)
  */
 @Testcontainers
-class KafkaEventPublisherTest {
+class KafkaEventSenderTest {
 
     @Container
     KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"));
 
     @Test
-    void testPublish() throws Exception {
+    void testSend() throws Exception {
         Properties properties = new Properties();
         properties.put("bootstrap.servers", kafka.getBootstrapServers());
         properties.put("group.id", "1");
         properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        KafkaEventPublisher<String> publisher = new KafkaEventPublisher<>(
+        KafkaEventSender<String> sender = new KafkaEventSender<>(
                 properties,
                 "MyTopic");
-        publisher.publish("Hello World");
+        sender.send("Hello World");
         properties = new Properties();
         properties.put("bootstrap.servers", kafka.getBootstrapServers());
         properties.put("auto.offset.reset", "earliest");

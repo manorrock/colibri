@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 /**
- * The JUnit tests for the JmsTextMessageEventPublisher class.
+ * The JUnit tests for the JmsTextMessageEventReceiver class.
  *
  * @author Manfred Riem (mriem@manorrock.com)
  */
@@ -48,9 +48,9 @@ class JmsTextMessageEventReceiverTest {
     @Test
     void testReceive() throws Exception {
         ConnectionFactory connectionFactory = new ConnectionFactory();
-        try (JmsTextMessageEventPublisher<String> publisher
-                = new JmsTextMessageEventPublisher(connectionFactory, "colibri")) {
-            publisher.publish("Receive me");
+        try (JmsTextMessageEventSender<String> sender
+                = new JmsTextMessageEventSender(connectionFactory, "colibri")) {
+            sender.send("Receive me");
         }
         try (JmsTextMessageEventReceiver<String> receiver
                 = new JmsTextMessageEventReceiver(connectionFactory, "colibri")) {
