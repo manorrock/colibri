@@ -27,34 +27,50 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.jms;
+package com.manorrock.colibri.api;
 
-import com.sun.messaging.ConnectionFactory;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
+import java.util.Map;
 
 /**
- * The JUnit tests for the JmsTextMessageEventPublisher class.
- *
+ * An event sender.
+ * 
  * @author Manfred Riem (mriem@manorrock.com)
+ * @param <T> the event type.
+ * @param <UT> the underlying event type.
  */
-class JmsTextMessageEventPublisherTest {
-
+public interface EventSender<T, UT> extends AutoCloseable {
+    
     /**
-     * Test publish method.
-     *
-     * @throws Exception when a serious error occurs.
+     * Get the delegate map.
+     * 
+     * @return the delegate map.
      */
-    @Test
-    void testPublish() throws Exception {
-        ConnectionFactory connectionFactory = new ConnectionFactory();
-        try (JmsTextMessageEventPublisher<String> publisher
-                = new JmsTextMessageEventPublisher(connectionFactory, "colibri")) {
-            publisher.publish("Publish me");
-        }
-        try (JmsTextMessageEventReceiver<String> receiver
-                = new JmsTextMessageEventReceiver(connectionFactory, "colibri")) {
-            assertNotNull(receiver.receive());
-        }
+    Map<String, Object> getDelegate();
+    
+    /**
+     * Send a event.
+     * 
+     * @param event the event.
+     */
+    void send(T event);
+    
+    /**
+     * To underlying event.
+     * 
+     * @param event the event.
+     * @return the underlying event.
+     */
+    default UT toUnderlyingEvent(T event) {
+        return (UT) event;
+    }
+    
+    /**
+     * To event.
+     * 
+     * @param underlyingEvent the underlying event.
+     * @return the event.
+     */
+    default T toEvent(UT underlyingEvent) {
+        return (T) underlyingEvent;
     }
 }

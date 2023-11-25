@@ -27,71 +27,65 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.jms;
+package com.manorrock.colibri.kafka;
 
-import com.manorrock.colibri.api.EventPublisher;
-import jakarta.jms.ConnectionFactory;
-import static jakarta.jms.DeliveryMode.NON_PERSISTENT;
-import jakarta.jms.JMSContext;
-import jakarta.jms.JMSProducer;
-import jakarta.jms.Queue;
+import com.manorrock.colibri.api.EventSender;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
- * The JMS TextMessage implementation of an EventPublisher.
- * 
+ * The Kafka implementation of an EventSender.
+ *
  * @author Manfred Riem (mriem@manorrock.com)
  * @param <T> the type.
  */
-public class JmsTextMessageEventPublisher<T> implements EventPublisher<T, String> {
+public class KafkaEventSender<T> implements EventSender<T, String> {
 
     /**
-     * Stores the context.
+     * Stores the producer.
      */
-    private final JMSContext context;
+    private KafkaProducer<String, String> producer;
     
     /**
-     * Stores the JMS producer.
+     * Stores the topic.
      */
-    private final JMSProducer producer;
-    
-    /**
-     * Stores the JMS queue.
-     */
-    private final Queue queue;
-    
+    private String topic;
+
     /**
      * Constructor.
      * 
-     * @param connectionFactory the connection factory.
-     * @param destinationName the destination name.
+     * @param properties the configuration properties.
+     * @param topic the topic name.
      */
-    public JmsTextMessageEventPublisher(
-            ConnectionFactory connectionFactory, String destinationName) {
-        context = connectionFactory.createContext();
-        queue = context.createQueue(destinationName);
-        producer = context.createProducer();
-        producer.setDeliveryMode(NON_PERSISTENT);
+    public KafkaEventSender(Properties properties, String topic) {
+        producer = new KafkaProducer<>(properties);
+        this.topic = topic;
     }
-    
+
     @Override
     public void close() throws Exception {
-        context.close();
+        producer.close();
     }
 
     @Override
     public Map<String, Object> getDelegate() {
         Map<String, Object> delegate = new HashMap<>();
-        delegate.put("jmsContenxt", context);
-        delegate.put("jmsProducer", producer);
-        delegate.put("queue", queue);
+        delegate.put("kafkaProducer", producer);
+        delegate.put("topic", topic);
         return delegate;
     }
 
     @Override
-    public void publish(T event) {
-        producer.send(queue, (String) toUnderlyingEvent(event));
+    public void send(T event) {
+        ProducerRecord record = new ProducerRecord(topic, String.valueOf(System.nanoTime()), toUnderlyingEvent(event));
+        try {
+            producer.send(record).get();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override

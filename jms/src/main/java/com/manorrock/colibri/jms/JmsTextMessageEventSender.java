@@ -27,71 +27,75 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.azureeventhubs;
+package com.manorrock.colibri.jms;
 
-import com.azure.messaging.eventhubs.EventData;
-import com.azure.messaging.eventhubs.EventDataBatch;
-import com.azure.messaging.eventhubs.EventHubClientBuilder;
-import com.azure.messaging.eventhubs.EventHubProducerClient;
-import com.manorrock.colibri.api.EventPublisher;
+import com.manorrock.colibri.api.EventSender;
+import jakarta.jms.ConnectionFactory;
+import static jakarta.jms.DeliveryMode.NON_PERSISTENT;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSProducer;
+import jakarta.jms.Queue;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The Azure Event Bus implementation of an EventPublisher.
- *
+ * The JMS TextMessage implementation of an EventSender.
+ * 
  * @author Manfred Riem (mriem@manorrock.com)
  * @param <T> the type.
  */
-public class AzureEventHubEventPublisher<T> implements EventPublisher<T, EventData> {
+public class JmsTextMessageEventSender<T> implements EventSender<T, String> {
 
     /**
-     * Stores the client.
+     * Stores the context.
      */
-    private EventHubProducerClient client;
+    private final JMSContext context;
     
     /**
-     * Stores the connection string.
+     * Stores the JMS producer.
      */
-    private String connectionString;
+    private final JMSProducer producer;
     
     /**
-     * Stores the event hub name.
+     * Stores the JMS queue.
      */
-    private String eventHubName;
+    private final Queue queue;
     
     /**
      * Constructor.
      * 
-     * @param connectionString the connection string.
-     * @param eventHubName the event hub name.
+     * @param connectionFactory the connection factory.
+     * @param destinationName the destination name.
      */
-    public AzureEventHubEventPublisher(String connectionString, String eventHubName) {
-        this.connectionString = connectionString;
-        this.eventHubName = eventHubName;
-        client = new EventHubClientBuilder()
-                .connectionString(connectionString, eventHubName)
-                .buildProducerClient();
+    public JmsTextMessageEventSender(
+            ConnectionFactory connectionFactory, String destinationName) {
+        context = connectionFactory.createContext();
+        queue = context.createQueue(destinationName);
+        producer = context.createProducer();
+        producer.setDeliveryMode(NON_PERSISTENT);
     }
-
+    
     @Override
     public void close() throws Exception {
-        client.close();
+        context.close();
     }
 
     @Override
     public Map<String, Object> getDelegate() {
         Map<String, Object> delegate = new HashMap<>();
-        delegate.put("client", client);
-        delegate.put("connectionString", connectionString);
-        delegate.put("eventHubName", eventHubName);
+        delegate.put("jmsContenxt", context);
+        delegate.put("jmsProducer", producer);
+        delegate.put("queue", queue);
         return delegate;
     }
 
     @Override
-    public void publish(T event) {
-        EventDataBatch batch = client.createBatch();
-        batch.tryAdd(toUnderlyingEvent(event));
-        client.send(batch);
+    public void send(T event) {
+        producer.send(queue, (String) toUnderlyingEvent(event));
+    }
+
+    @Override
+    public String toUnderlyingEvent(T event) {
+        return event.toString();
     }
 }

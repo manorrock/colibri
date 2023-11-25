@@ -27,50 +27,69 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-package com.manorrock.colibri.api;
+package com.manorrock.colibri.azureservicebus;
 
+import com.azure.messaging.servicebus.ServiceBusClientBuilder;
+import com.azure.messaging.servicebus.ServiceBusMessage;
+import com.azure.messaging.servicebus.ServiceBusSenderClient;
+import com.manorrock.colibri.api.EventSender;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An event publisher.
- * 
+ * The Azure Event Bus implementation of an EventSender.
+ *
  * @author Manfred Riem (mriem@manorrock.com)
- * @param <T> the event type.
- * @param <UT> the underlying event type.
+ * @param <T> the type.
  */
-public interface EventPublisher<T, UT> extends AutoCloseable {
+public class AzureServiceBusEventSender<T> implements EventSender<T, byte[]> {
+
+    /**
+     * Stores the client.
+     */
+    private ServiceBusSenderClient client;
     
     /**
-     * Get the delegate map.
-     * 
-     * @return the delegate map.
+     * Stores the connection string.
      */
-    Map<String, Object> getDelegate();
+    private String connectionString;
     
     /**
-     * Publish a event.
-     * 
-     * @param event the event.
+     * Stores the queue name.
      */
-    void publish(T event);
+    private String queueName;
     
     /**
-     * To underlying event.
+     * Constructor.
      * 
-     * @param event the event.
-     * @return the underlying event.
+     * @param connectionString the connection string.
+     * @param queueName the queue name.
      */
-    default UT toUnderlyingEvent(T event) {
-        return (UT) event;
+    public AzureServiceBusEventSender(String connectionString, String queueName) {
+        client = new ServiceBusClientBuilder()
+                .connectionString(connectionString)
+                .sender()
+                .queueName(queueName)
+                .buildClient();
     }
-    
-    /**
-     * To event.
-     * 
-     * @param underlyingEvent the underlying event.
-     * @return the event.
-     */
-    default T toEvent(UT underlyingEvent) {
-        return (T) underlyingEvent;
+
+    @Override
+    public void close() throws Exception {
+        client.close();
+    }
+
+    @Override
+    public Map<String, Object> getDelegate() {
+        Map<String, Object> delegate = new HashMap<>();
+        delegate.put("client", client);
+        delegate.put("connectionString", connectionString);
+        delegate.put("queueName", queueName);
+        return delegate;
+    }
+
+    @Override
+    public void send(T event) {
+        ServiceBusMessage message = new ServiceBusMessage(toUnderlyingEvent(event));
+        client.sendMessage(message);
     }
 }
