@@ -21,8 +21,8 @@
     </licenses>
     <properties>
         <!-- dependencies -->
-        <azure-messaging-eventhubs.version>5.8.0</azure-messaging-eventhubs.version>
-        <azure-messaging-servicebus.version>7.14.2</azure-messaging-servicebus.version>
+        <azure-messaging-eventhubs.version>5.18.2</azure-messaging-eventhubs.version>
+        <azure-messaging-servicebus.version>7.15.2</azure-messaging-servicebus.version>
         <jakarta.jms-api.version>3.1.0</jakarta.jms-api.version>
         <junit.version>5.9.2</junit.version>
         <kafka-clients.version>3.4.0</kafka-clients.version>
