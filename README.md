@@ -7,6 +7,7 @@ The Manorrock Colibri project delivers you with a eventing abstraction.
 ## Which modules are available?
 
 1. [API](api/README.md)
+2. [JMS](jms/README.md)
 
 ## How do I contribute?
 
