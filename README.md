@@ -13,6 +13,20 @@ The Manorrock Colibri project delivers you with a eventing abstraction.
 
 See [Contributing](CONTRIBUTING.md)
 
+## Sending an event
+
+```java
+    EventSender<String> sender;
+    sender.send("Receive me");
+```
+
+## Receiving an event
+
+```java
+    EventReceiver<String> receiver;
+    String event = receiver.receive()
+```
+
 ## Our code of Conduct
 
 See [Code of Conduct](CODE_OF_CONDUCT.md)
