@@ -49,11 +49,11 @@ class JmsTextMessageEventSenderTest {
     void testSend() throws Exception {
         ConnectionFactory connectionFactory = new ConnectionFactory();
         try (JmsTextMessageEventSender<String> sender
-                = new JmsTextMessageEventSender(connectionFactory, "colibri")) {
+                = new JmsTextMessageEventSender<>(connectionFactory, "colibri")) {
             sender.send("Send me");
         }
         try (JmsTextMessageEventReceiver<String> receiver
-                = new JmsTextMessageEventReceiver(connectionFactory, "colibri")) {
+                = new JmsTextMessageEventReceiver<>(connectionFactory, "colibri")) {
             assertNotNull(receiver.receive());
         }
     }
